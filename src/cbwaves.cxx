@@ -42,9 +42,8 @@ static const char* H_NAMES[H_COUNT] = {
 #define C_2PNSO      (1<<8)
 #define C_RRSO       (1<<9)
 #define C_RRSS       (1<<10)
-#define C_KADM       (1<<11)
 static const char* C_NAMES[C_COUNT] = {
-    "PN", "2PN", "SO", "SS", "RR", "PNSO", "3PN", "1RR", "2PNSO", "RRSO", "RRSS","KADM"
+    "PN", "2PN", "SO", "SS", "RR", "PNSO", "3PN", "1RR", "2PNSO", "RRSO", "RRSS"
     // order is important!
 };
 
@@ -233,7 +232,7 @@ public:
     CBwaveODE(REAL m1, REAL m2):
 	    ODE<REAL>(N_COMPONENTS, COMPONENT_NAMES),
 	    m1(m1), m2(m2) {
-	corrections = C_PN | C_2PN | C_SO | C_SS | C_RR | C_PNSO | C_3PN | C_1RR | C_2PNSO | C_RRSO | C_RRSS | C_KADM;
+	corrections = C_PN | C_2PN | C_SO | C_SS | C_RR | C_PNSO | C_3PN | C_1RR | C_2PNSO | C_RRSO | C_RRSS;
 	hterms = H_Q | H_P05Q | H_PQ | H_PQSO
 			 | H_P15Q | H_P15Qtail | H_P15QSO | H_P2Q | H_PQSS;
 	init_m();
