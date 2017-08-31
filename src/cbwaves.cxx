@@ -175,13 +175,7 @@ enum {
     I_v2PNSOz = 86,
     I_E_PNSOrad = 87, // radiated energy PNSO correction
     I_E_25PNrad = 88, // radiated energy 2.5PN correction
-    I_rHx = 89, // ADM Hamiltonian coordnates
-    I_rHy = 90,
-    I_rHz = 91,
-    I_pHx = 92,
-    I_pHy = 93,
-    I_pHz = 94,
-    N_COMPONENTS = 95 
+    N_COMPONENTS = 89 
 };
 
 enum {
