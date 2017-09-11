@@ -1,5 +1,7 @@
 #!/usr/bin/perl -w
 use strict;
+use File::Copy;
+use File::Temp;
 
 #
 # This example script generates ini files 
@@ -64,8 +66,8 @@ my ($s1x, $s1y, $s1z) = (-sin(0.1020645929),0,cos(0.1020645929));
 my ($s2x, $s2y, $s2z) = (sin(0.4215341828),0,cos(0.4215341828));
 
 # - Output filename definition
-my $outfile="/tmp/cbwaves.out";
-my $ftfile="/tmp/cbwaves.ft";
+my ($outfilehandle, $outfilename)= File::Temp::tempfile("cbwavesXXXXX", ".out");
+my ($ftfilehandle,  $ftfilename) = File::Temp::tempfile("cbwavesXXXXX", ".ft");
 
 # - Hterms and corrections
 my $hterms= "'Q','P05Q','PQ','P15Q','P15Qtail','PQSO','P15QSO','P2Q','PQSS'";
@@ -136,8 +138,8 @@ print myFILE <<EOF;
 #
 
 [output]
-outfile = $outfile              # output filename
-ftfile = $ftfile                # file for the Fourier-transformed
+outfile = $outfilename              # output filename
+ftfile = $ftfilename                # file for the Fourier-transformed
 outvars = $outvars
 
 [input]
@@ -201,16 +203,17 @@ my $alpha;     # aux variable angle for the spin angle
 # Comment out the the loops if you want to generate only
 # a single ini file.
 
-for ($i=1; $i <5; $i++) {
+for ($i=1; $i <= $ARGV[0]; $i++) {
+  for ($j=1; $j <= $ARGV[1]; $j++) {
 
         $m1  = $i * $msun;
         $m2  = $i * $msun;
         $s1z = 0;
         $s1x = 0;
         
-        $uniqid="${filenameprefix}_${i}_${i}";
-        $outfile="$uniqid.dat";
-        $ftfile="${filenameprefix}_${i}_${i}_fft"; 
+        $uniqid="${filenameprefix}_${i}_${j}";
+        $outfilename="$uniqid.dat";
+        $ftfilename="${filenameprefix}_${i}_${j}_fft"; 
 
         $rmin = 6*($m1 + $m2);
         $flow = 40;
@@ -220,7 +223,7 @@ for ($i=1; $i <5; $i++) {
         $dt = 1 / 4096;
         WriteInifile;
     
-        Run "cp CBwaves.ini ${uniqid}.ini";
+        move("CBwaves.ini","${uniqid}.ini");
         if ("$generatesubfileonly" eq "yes") {
            open(desFILE,"> ${uniqid}.des");
            print desFILE <<EOF;
@@ -242,4 +245,5 @@ EOF
            Run "$cbwbinary ${uniqid}.ini";
        }
     
+  }
 }
