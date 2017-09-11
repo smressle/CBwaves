@@ -1,15 +1,17 @@
-  #include <cmath>
+#define _USE_MATH_DEFINES
+
+#include <cmath>
 #include <limits>
 #include <fstream>
 #include <sstream>
 #include <map>
-#include <sys/time.h>
+//#include <sys/time.h>
 #include <vector>
-#include "include/tvector.h"
-#include "include/RK4.h"
-#include "include/Spline3.h"
-#include "include/fft.h"
-#include "include/ConfigFile.h"
+#include <include/tvector.h>
+#include <include/RK4.h>
+#include <include/Spline3.h>
+#include <include/fft.h>
+#include <include/ConfigFile.h>
 #include <boost/algorithm/string.hpp>
 #include <complex>
 #include <stdio.h>
@@ -42,7 +44,7 @@ static const char* H_NAMES[H_COUNT] = {
 #define C_2PNSO      (1<<8)
 #define C_RRSO       (1<<9)
 #define C_RRSS       (1<<10)
-static const char* C_NAMES[C_COUNT] = {
+static const char* C_NAMES[C_COUNT] = { // TODO: std::array!
     "PN", "2PN", "SO", "SS", "RR", "PNSO", "3PN", "1RR", "2PNSO", "RRSO", "RRSS"
     // order is important!
 };
@@ -2302,11 +2304,11 @@ inline bool is_valid(REAL t, const tvalarray<REAL>& f, const CBwaveODE& ode,
 
 inline REAL currentTime()
 {
-    struct timeval time_now;
-    gettimeofday(&time_now, NULL);
-    long long int t = (long long int)1000000*time_now.tv_sec
-		+ (long long int)time_now.tv_usec;
-    return 1e-6*t;
+    //struct timeval time_now;
+    //gettimeofday(&time_now, NULL);
+    //long long int t = (long long int)1000000*time_now.tv_sec
+	//	+ (long long int)time_now.tv_usec;
+    return 0;// 1e-6*t;
 }
 
 static void run(CBwaveODE& ode, tvalarray<REAL>& f, REAL dt,

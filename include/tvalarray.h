@@ -402,8 +402,8 @@ public:
     friend void resize(tvalarray<Tp>& arr, unsigned _n, Tp value = Tp());
 
     /** Resize array and initialize all elements in hyper-arrays. */
-    template <class Tp>
-    friend void resize(tvalarray< tvalarray<Tp> >& arr, unsigned _n, tvalarray<Tp> value = tvalarray<Tp>());
+    //template <class Tp>
+    //friend void resize(tvalarray<tvalarray<Tp>>& arr, unsigned _n, tvalarray<Tp> value = tvalarray<Tp>{});
 
     /** Gets the kth element. */
     T operator [](int k) const {
@@ -603,7 +603,7 @@ void copy(const tvalarray< tvalarray<T> >& source, tvalarray< tvalarray<T> >& de
 
 /** Resize array and initialize all elements in arrays. */
 template <class T>
-void resize(tvalarray< T >& arr, unsigned _n, T value=T())
+void resize(tvalarray< T >& arr, unsigned _n, T value/*=T()*/)
 {
     if(_n > arr.n) {
 	arr.realloc(_n);
@@ -615,7 +615,7 @@ void resize(tvalarray< T >& arr, unsigned _n, T value=T())
 
 /** Resize array and initialize all elements in hyper-arrays. */
 template <class T>
-void resize(tvalarray< tvalarray<T> >& arr, unsigned _n, tvalarray<T> value=tvalarray<T>())
+void resize(tvalarray< tvalarray<T> >& arr, unsigned _n, tvalarray<T> valu/*e=tvalarray<T>()*/)
 {
     if(_n > arr.n) {
 	arr.realloc(_n);
