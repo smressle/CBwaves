@@ -146,8 +146,8 @@ private:
 	    bArray[i] = H[i]/h[i] - h[i]*(cArray[i+1]+2*cArray[i])/3;
 	}
 	bArray[N-2] = H[N-2]/h[N-2] - 2/3.0*h[N-2]*cArray[N-2];
-	delete alpha;  delete h;
-	delete beta;   delete H;
+	delete[] alpha;  delete[] h;
+	delete[] beta;   delete[] H;
     }
 };
 
