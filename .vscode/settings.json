@@ -1,9 +1,0 @@
-{
-    "files.associations": {
-        "__tree": "cpp",
-        "algorithm": "cpp",
-        "list": "cpp",
-        "bitset": "cpp",
-        "set": "cpp"
-    }
-}
