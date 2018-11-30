@@ -1,5 +1,3 @@
-#define _USE_MATH_DEFINES
-
 #include <cmath>
 #include <limits>
 #include <fstream>
@@ -32,7 +30,7 @@ static const char* H_NAMES[H_COUNT] = {
     // order is important!
 };
 
-#define C_COUNT       11
+#define C_COUNT       12
 #define C_PN         (1<<0)
 #define C_2PN        (1<<1)
 #define C_SO         (1<<2)
@@ -44,8 +42,9 @@ static const char* H_NAMES[H_COUNT] = {
 #define C_2PNSO      (1<<8)
 #define C_RRSO       (1<<9)
 #define C_RRSS       (1<<10)
+#define C_4PN       (1<<11)
 static const char* C_NAMES[C_COUNT] = { // TODO: std::array!
-    "PN", "2PN", "SO", "SS", "RR", "PNSO", "3PN", "1RR", "2PNSO", "RRSO", "RRSS"
+    "PN", "2PN", "SO", "SS", "RR", "PNSO", "3PN", "1RR", "2PNSO", "RRSO", "RRSS", "4PN"
     // order is important!
 };
 
@@ -177,7 +176,13 @@ enum {
     I_v2PNSOz = 86,
     I_E_PNSOrad = 87, // radiated energy PNSO correction
     I_E_25PNrad = 88, // radiated energy 2.5PN correction
-    N_COMPONENTS = 89 
+    I_r4PNx = 89,
+    I_r4PNy = 90,
+    I_r4PNz = 91,
+    I_v4PNx = 92,
+    I_v4PNy = 93,
+    I_v4PNz = 94,
+    N_COMPONENTS = 95 
 };
 
 enum {
@@ -228,7 +233,7 @@ public:
     CBwaveODE(REAL m1, REAL m2):
 	    ODE<REAL>(N_COMPONENTS, COMPONENT_NAMES),
 	    m1(m1), m2(m2) {
-	corrections = C_PN | C_2PN | C_SO | C_SS | C_RR | C_PNSO | C_3PN | C_1RR | C_2PNSO | C_RRSO | C_RRSS;
+	corrections = C_PN | C_2PN | C_SO | C_SS | C_RR | C_PNSO | C_3PN | C_1RR | C_2PNSO | C_RRSO | C_RRSS | C_4PN;
 	hterms = H_Q | H_P05Q | H_PQ | H_PQSO
 			 | H_P15Q | H_P15Qtail | H_P15QSO | H_P2Q | H_PQSS;
 	init_m();
@@ -448,6 +453,12 @@ static FUNCDEF(rRRSSz) { return f[I_rRRSSz]; }
 static FUNCDEF(vRRSSx) { return f[I_vRRSSx]; }
 static FUNCDEF(vRRSSy) { return f[I_vRRSSy]; }
 static FUNCDEF(vRRSSz) { return f[I_vRRSSz]; }
+static FUNCDEF(r4PNx) { return f[I_r4PNx]; }
+static FUNCDEF(r4PNy) { return f[I_r4PNy]; }
+static FUNCDEF(r4PNz) { return f[I_r4PNz]; }
+static FUNCDEF(v4PNx) { return f[I_v4PNx]; }
+static FUNCDEF(v4PNy) { return f[I_v4PNy]; }
+static FUNCDEF(v4PNz) { return f[I_v4PNz]; }
 static FUNCDEF(s1x) { return f[I_s1x]; }
 static FUNCDEF(s1y) { return f[I_s1y]; }
 static FUNCDEF(s1z) { return f[I_s1z]; }
@@ -457,27 +468,27 @@ static FUNCDEF(s2z) { return f[I_s2z]; }
 static FUNCDEF(orbits) { return f[I_orbits]; }
 static FUNCDEF(rx) {
     return f[I_rNx] + f[I_rPNx] + f[I_rSOx] + f[I_r2PNx] + f[I_rSSx] + f[I_rRRx] + f[I_r3PNx] + f[I_r1RRx] 
-		+ f[I_rPNSOx] + f[I_r2PNSOx] + f[I_rRRSOx] + f[I_rRRSSx];
+		+ f[I_rPNSOx] + f[I_r2PNSOx] + f[I_rRRSOx] + f[I_rRRSSx] + f[I_r4PNx];
 }
 static FUNCDEF(ry) {
     return f[I_rNy] + f[I_rPNy] + f[I_rSOy] + f[I_r2PNy] + f[I_rSSy] + f[I_rRRy] + f[I_r3PNy] + f[I_r1RRy] 
-		+ f[I_rPNSOy] + f[I_r2PNSOy] + f[I_rRRSOy] + f[I_rRRSSy];
+		+ f[I_rPNSOy] + f[I_r2PNSOy] + f[I_rRRSOy] + f[I_rRRSSy] + f[I_r4PNy];
 }
 static FUNCDEF(rz) {
     return f[I_rNz] + f[I_rPNz] + f[I_rSOz] + f[I_r2PNz] + f[I_rSSz] + f[I_rRRz] + f[I_r3PNz] + f[I_r1RRz] 
-		+ f[I_rPNSOz] + f[I_r2PNSOz] + f[I_rRRSOz] + f[I_rRRSSz];
+		+ f[I_rPNSOz] + f[I_r2PNSOz] + f[I_rRRSOz] + f[I_rRRSSz] + f[I_r4PNz];
 }
 static FUNCDEF(vx) {
     return f[I_vNx] + f[I_vPNx] + f[I_vSOx] + f[I_v2PNx] + f[I_vSSx] + f[I_vRRx] + f[I_v3PNx] + f[I_v1RRx] 
-		+ f[I_vPNSOx] + f[I_v2PNSOx] + f[I_vRRSOx] + f[I_vRRSSx];
+		+ f[I_vPNSOx] + f[I_v2PNSOx] + f[I_vRRSOx] + f[I_vRRSSx] + f[I_v4PNx];
 }
 static FUNCDEF(vy) {
     return f[I_vNy] + f[I_vPNy] + f[I_vSOy] + f[I_v2PNy] + f[I_vSSy] + f[I_vRRy] + f[I_v3PNy] + f[I_v1RRy] 
-		+ f[I_vPNSOy] + f[I_v2PNSOy] + f[I_vRRSOy] + f[I_vRRSSy];
+		+ f[I_vPNSOy] + f[I_v2PNSOy] + f[I_vRRSOy] + f[I_vRRSSy] + f[I_v4PNy];
 }
 static FUNCDEF(vz) {
     return f[I_vNz] + f[I_vPNz] + f[I_vSOz] + f[I_v2PNz] + f[I_vSSz] + f[I_vRRz] + f[I_v3PNz] + f[I_v1RRz] 
-		+ f[I_vPNSOz] + f[I_v2PNSOz] + f[I_vRRSOz] + f[I_vRRSSz];
+		+ f[I_vPNSOz] + f[I_v2PNSOz] + f[I_vRRSOz] + f[I_vRRSSz] + f[I_v4PNz];
 }
 
 static FUNCDEF(drAdiabatic) {
@@ -1609,6 +1620,12 @@ static map<string, function_t> create_function_map()
     m["v3PNx"] = eval_v3PNx;
     m["v3PNy"] = eval_v3PNy;
     m["v3PNz"] = eval_v3PNz;
+    m["r4PNx"] = eval_r4PNx;
+    m["r4PNy"] = eval_r4PNy;
+    m["r4PNz"] = eval_r4PNz;
+    m["v4PNx"] = eval_v4PNx;
+    m["v4PNy"] = eval_v4PNy;
+    m["v4PNz"] = eval_v4PNz;
     m["rSOx"] = eval_rSOx;
     m["rSOy"] = eval_rSOy;
     m["rSOz"] = eval_rSOz;
@@ -1756,7 +1773,8 @@ const string CBwaveODE::COMPONENT_NAMES[] = {
     "r1RRx", "r1RRy", "r1RRz", "v1RRx", "v1RRy", "v1RRz",
     "rRRSOx", "rRRSOy", "rRRSOz", "vRRSOx", "vRRSOy", "vRRSOz",
     "rRRSSx", "rRRSSy", "rRRSSz", "vRRSSx", "vRRSSy", "vRRSSz",
-    "r2PNSOx", "r2PNSOy", "r2PNSOz", "v2PNSOx", "v2PNSOy", "v2PNSOz"
+    "r2PNSOx", "r2PNSOy", "r2PNSOz", "v2PNSOx", "v2PNSOy", "v2PNSOz",
+    "r4PNx", "r4PNy", "r4PNz", "v4PNx", "v4PNy", "v4PNz"
 };
 
 static map<string, function_t> FUNCMAP = create_function_map();
@@ -1793,10 +1811,25 @@ void CBwaveODE::eval(const REAL* f, int offset, REAL t, REAL* df)
     REAL ny = ry/r;
     REAL nz = rz/r;
     REAL Gm_r2 = m/rsq;
+    REAL m_r = m/r;
+    REAL m_r2 = m_r*m_r;
+    REAL m_r3 = m_r*m_r*m_r;
+    REAL m_r4 = m_r*m_r*m_r*m_r;
+    REAL eta2 = eta*eta;
+    REAL eta3 = eta*eta*eta;
+    REAL eta4 = eta*eta*eta*eta;
     REAL rdot = (rx*vx + ry*vy + rz*vz)/r;
     REAL rdot2 = rdot*rdot;
+    REAL rdot4 = rdot*rdot*rdot*rdot;
+    REAL rdot6 = rdot*rdot*rdot*rdot*rdot*rdot;
+    REAL rdot8 = rdot*rdot*rdot*rdot*rdot*rdot*rdot*rdot;
     REAL vsq = vx*vx + vy*vy + vz*vz;
     REAL v = sqrt(vsq);
+    REAL v2 = v*v;
+    REAL v4 = v*v*v*v;
+    REAL v6 = v*v*v*v*v*v;
+    REAL v8 = v*v*v*v*v*v*v*v;
+    
     df[I_vNx] = -Gm_r2*nx;
     df[I_vNy] = -Gm_r2*ny;
     df[I_vNz] = -Gm_r2*nz;
@@ -2264,6 +2297,61 @@ void CBwaveODE::eval(const REAL* f, int offset, REAL t, REAL* df)
 	df[I_r2PNSOx] = f[I_v2PNSOx];
 	df[I_r2PNSOy] = f[I_v2PNSOy];
 	df[I_r2PNSOz] = f[I_v2PNSOz];
+    }
+    if(corrections & C_4PN) {
+        
+        REAL Gm_r = m/r;
+
+        REAL a0 = (315./128.*eta - 2205./128.*eta2 + 2205./64.*eta3 - 2205./128.*eta4)*rdot8
+            + (-175./16.*eta + 595./8.*eta2 - 2415./15.*eta3 + 735./8.*eta4)*rdot6*v2
+            + (135./8.*eta - 1875./16.*eta2 + 4035./16.*eta3 - 1335./8.*eta4)*rdot4*v4
+            + (-21./2.*eta + 1191./16.*eta2 - 327./2.*eta3 + 99.*eta4)*rdot2*v6
+            + (21./8.*eta - 175./8.*eta2 + 61.*eta3 - 54.*eta4)*v8;
+
+        REAL a1 = m_r*((2973./40.*eta + 407.*eta2 + 181./2.*eta3 - 86.*eta4)*rdot6
+            + (1497./32.*eta - 1627./2.*eta2 - 81.*eta3 + 228.*eta4)*v2*rdot4
+            - (2583./16.*eta + 1009./2.*eta2 + 47.*eta3 - 104.*eta4)*rdot2*v4
+            + (1067./32.*eta - 58.*eta2 - 44.*eta3 + 58.*eta4)*v6);
+
+        REAL a2 = m_r2*(2094751./960.*eta*rdot4 + 45255./1024.*PI*PI*eta*rdot4
+            + 326101./91.*eta2*rdot4 - 4305./128.*PI*PI*eta2*rdot4
+            - 1959./32.*eta3*rdot4 - 126.*eta4*rdot4 - 1636681./1120.*eta*rdot2*v2
+            - 12585./512.*eta*PI*PI*rdot2*v2 - 255461./112.*eta2*rdot2*v2 + 3075./128.*PI*PI*eta2*rdot2*v2
+            - 309./4.*eta3*rdot2*v2 + 63.*eta4*rdot2*v2 
+            + (1096941./11200.*eta + 1155./1024.*PI*PI*eta + 7263.*eta2 - 123./64.*PI*PI*eta2 + 145./2.*eta3 
+            - 16.*eta4)*v4);
+
+        REAL a3 = m_r3*((-2. + (1297943./8400. - 2969./16.*PI*PI)*eta + (1255151./840. + 7095./16.*PI*PI)*eta2 
+            - 17.*eta3 - 24.*eta4)*rdot2 + ((1237279./25200.  + 3835./96.*PI*PI)*eta 
+            - (693947./2520. + 229./8.*PI*PI)*eta2 + 19./2.*eta3)*v2);
+
+        REAL a4 = m_r4*(25. + (6625537./12600. - 4543./96.*PI*PI)*eta + (477763./720. + 3./4.*PI*PI)*eta2);
+
+        REAL c4PNn = - Gm_r2 *(a0 + a1 + a2 + a3 + a4);
+
+        REAL b0 = (105./16.*eta - 245./8.*eta2 + 385./16.*eta3 + 35./8.*eta4)*rdot6*rdot
+            + (-165./8.*eta + 1665./16.*eta2 - 1725./16.*eta3 - 105./4.*eta4)*rdot4*rdot
+            + (45./2.*eta - 1869./16.*eta2 + 129.*eta3 + 54.*eta4)*rdot2*rdot*v4
+            + (-157./16.*eta + 54.*eta2 - 69.*eta3 - 24.*eta4)*rdot*v6;
+
+        REAL b1 = m_r*(-(54319./160.*eta + 901./8.*eta2 - 60.*eta3 - 30.*eta4)*rdot4*rdot
+            + (25943./48.*eta + 1199./12.*eta2 - 349./2.*eta3 - 98.*eta4)*rdot2*rdot*v2
+            - (5725./32.*eta + 389./8.*eta2 - 118.*eta3) - 44.*eta4*rdot*v4);
+
+        REAL b2 = m_r2*((-(9130111./3306. + 4695./256.*PI*PI)*eta - (184613./112. - 1845./64.*PI*PI)*eta2 
+            + 209./2.*eta3 + 74.*eta4)*rdot2*rdot + ((8692601./5600. + 1455./256.*PI*PI)*eta + (58557./70. - 123./8.*PI*PI)*eta2
+            - 70.*eta3 - 34.*eta4)*rdot*v2);
+
+        REAL b3 = m_r3*(2. - (619267./525. - 791./16.*PI*PI)*eta - (28406./45. + 2201./32.*PI*PI)*eta2 + 66.*eta3 + 16.*eta4);
+
+        REAL c4PNv = - Gm_r2 *(b0 + b1 + b2 + b3);
+        
+        df[I_v4PNx] = c4PNn*nx + c4PNv*vx;
+        df[I_v4PNy] = c4PNn*ny + c4PNv*vy;
+        df[I_v4PNz] = c4PNn*nz + c4PNv*vz;
+        df[I_r4PNx] = f[I_v4PNx];
+        df[I_r4PNy] = f[I_v4PNy];
+        df[I_r4PNz] = f[I_v4PNz];
     }
     df[I_orbits] = v/(2*M_PI*r);
 }
