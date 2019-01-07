@@ -1,4 +1,4 @@
-#include <cmath>
+﻿#include <cmath>
 #include <limits>
 #include <fstream>
 #include <sstream>
@@ -2227,7 +2227,7 @@ void CBwaveODE::eval(const REAL* f, int offset, REAL t, REAL* df)
 	df[I_rRRSSy] = f[I_vRRSSy];
 	df[I_rRRSSz] = f[I_vRRSSz];
     }
-    if(corrections & C_2PNSO) {			// Boh� etal CQG30(13)075017, Eq. (3.8)
+    if(corrections & C_2PNSO) {			// Bohè etal CQG30(13)075017, Eq. (3.8)
 	REAL cnvS   = ( (ny*vz-vy*nz)*Sx + (nz*vx-nx*vz)*Sy + (nx*vy-ny*vx)*Sz );   // (n x v) S
 	REAL Sigx   = S1x*(m21-1) + S2x*(m12-1);				// (\delta m)/m * Sigma
 	REAL Sigy   = S1y*(m21-1) + S2y*(m12-1);
@@ -2299,29 +2299,26 @@ void CBwaveODE::eval(const REAL* f, int offset, REAL t, REAL* df)
 	df[I_r2PNSOz] = f[I_v2PNSOz];
     }
     if(corrections & C_4PN) {
-        
-        REAL Gm_r = m/r;
-
         REAL a0 = (315./128.*eta - 2205./128.*eta2 + 2205./64.*eta3 - 2205./128.*eta4)*rdot8
-            + (-175./16.*eta + 595./8.*eta2 - 2415./15.*eta3 + 735./8.*eta4)*rdot6*v2
+            + (-175./16.*eta + 595./8.*eta2 - 2415./16.*eta3 + 735./8.*eta4)*rdot6*v2
             + (135./8.*eta - 1875./16.*eta2 + 4035./16.*eta3 - 1335./8.*eta4)*rdot4*v4
             + (-21./2.*eta + 1191./16.*eta2 - 327./2.*eta3 + 99.*eta4)*rdot2*v6
             + (21./8.*eta - 175./8.*eta2 + 61.*eta3 - 54.*eta4)*v8;
 
         REAL a1 = m_r*((2973./40.*eta + 407.*eta2 + 181./2.*eta3 - 86.*eta4)*rdot6
             + (1497./32.*eta - 1627./2.*eta2 - 81.*eta3 + 228.*eta4)*v2*rdot4
-            - (2583./16.*eta + 1009./2.*eta2 + 47.*eta3 - 104.*eta4)*rdot2*v4
+            + (-2583./16.*eta + 1009./2.*eta2 + 47.*eta3 - 104.*eta4)*rdot2*v4
             + (1067./32.*eta - 58.*eta2 - 44.*eta3 + 58.*eta4)*v6);
 
         REAL a2 = m_r2*(2094751./960.*eta*rdot4 + 45255./1024.*PI*PI*eta*rdot4
-            + 326101./91.*eta2*rdot4 - 4305./128.*PI*PI*eta2*rdot4
+            + 326101./96.*eta2*rdot4 - 4305./128.*PI*PI*eta2*rdot4
             - 1959./32.*eta3*rdot4 - 126.*eta4*rdot4 - 1636681./1120.*eta*rdot2*v2
             - 12585./512.*eta*PI*PI*rdot2*v2 - 255461./112.*eta2*rdot2*v2 + 3075./128.*PI*PI*eta2*rdot2*v2
             - 309./4.*eta3*rdot2*v2 + 63.*eta4*rdot2*v2 
-            + (1096941./11200.*eta + 1155./1024.*PI*PI*eta + 7263.*eta2 - 123./64.*PI*PI*eta2 + 145./2.*eta3 
+            + (1096941./11200.*eta + 1155./1024.*PI*PI*eta + 7263./70.*eta2 - 123./64.*PI*PI*eta2 + 145./2.*eta3 
             - 16.*eta4)*v4);
 
-        REAL a3 = m_r3*((-2. + (1297943./8400. - 2969./16.*PI*PI)*eta + (1255151./840. + 7095./16.*PI*PI)*eta2 
+        REAL a3 = m_r3*((-2. + (1297943./8400. - 2969./16.*PI*PI)*eta + (1255151./840. + 7095./32.*PI*PI)*eta2 
             - 17.*eta3 - 24.*eta4)*rdot2 + ((1237279./25200.  + 3835./96.*PI*PI)*eta 
             - (693947./2520. + 229./8.*PI*PI)*eta2 + 19./2.*eta3)*v2);
 
@@ -2330,19 +2327,20 @@ void CBwaveODE::eval(const REAL* f, int offset, REAL t, REAL* df)
         REAL c4PNn = - Gm_r2 *(a0 + a1 + a2 + a3 + a4);
 
         REAL b0 = (105./16.*eta - 245./8.*eta2 + 385./16.*eta3 + 35./8.*eta4)*rdot6*rdot
-            + (-165./8.*eta + 1665./16.*eta2 - 1725./16.*eta3 - 105./4.*eta4)*rdot4*rdot
+            + (-165./8.*eta + 1665./16.*eta2 - 1725./16.*eta3 - 105./4.*eta4)*rdot4*rdot*v2
             + (45./2.*eta - 1869./16.*eta2 + 129.*eta3 + 54.*eta4)*rdot2*rdot*v4
             + (-157./16.*eta + 54.*eta2 - 69.*eta3 - 24.*eta4)*rdot*v6;
 
         REAL b1 = m_r*(-(54319./160.*eta + 901./8.*eta2 - 60.*eta3 - 30.*eta4)*rdot4*rdot
             + (25943./48.*eta + 1199./12.*eta2 - 349./2.*eta3 - 98.*eta4)*rdot2*rdot*v2
-            - (5725./32.*eta + 389./8.*eta2 - 118.*eta3) - 44.*eta4*rdot*v4);
+            + (-5725./32.*eta - 389./8.*eta2 + 118.*eta3 + 44.*eta4)*rdot*v4);
 
         REAL b2 = m_r2*((-(9130111./3306. + 4695./256.*PI*PI)*eta - (184613./112. - 1845./64.*PI*PI)*eta2 
-            + 209./2.*eta3 + 74.*eta4)*rdot2*rdot + ((8692601./5600. + 1455./256.*PI*PI)*eta + (58557./70. - 123./8.*PI*PI)*eta2
-            - 70.*eta3 - 34.*eta4)*rdot*v2);
+            + 209./2.*eta3 + 74.*eta4)*rdot2*rdot + ((8692601./5600. + 1455./256.*PI*PI)*eta 
+            + (58557./70. - 123./8.*PI*PI)*eta2 - 70.*eta3 - 34.*eta4)*rdot*v2);
 
-        REAL b3 = m_r3*(2. - (619267./525. - 791./16.*PI*PI)*eta - (28406./45. + 2201./32.*PI*PI)*eta2 + 66.*eta3 + 16.*eta4);
+        REAL b3 = m_r3*(2. - (619267./525. - 791./16.*PI*PI)*eta - (28406./45. + 2201./32.*PI*PI)*eta2 
+            + 66.*eta3 + 16.*eta4)*rdot;
 
         REAL c4PNv = - Gm_r2 *(b0 + b1 + b2 + b3);
         

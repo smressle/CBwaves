@@ -22,29 +22,29 @@ target_compile_definitions(${PROJECT_NAME} PRIVATE $<$<BOOL:${WIN32}>:_CRT_SECUR
 set_target_properties(${PROJECT_NAME} PROPERTIES CXX_STANDARD 14
                                                  CXX_STANDARD_REQUIRED ON)
 
-if(${PERL_FOUND})
+# if(${PERL_FOUND})
 
-  set(Imax 4)
-  set(Jmax 1)
-  set(script ${PROJECT_SOURCE_DIR}/examples/cbwgen.pl)
-  set(createdFiles)
+#   set(Imax 4)
+#   set(Jmax 1)
+#   set(script ${PROJECT_SOURCE_DIR}/examples/cbwgen.pl)
+#   set(createdFiles)
 
-  foreach(I RANGE ${Imax})
-    foreach(J RANGE ${Jmax})
-	  list(APPEND createdFiles ${CMAKE_CURRENT_BINARY_DIR}/test_cbwaves_${I}_${J}.ini
-	                           ${CMAKE_CURRENT_BINARY_DIR}/test_cbwaves_${I}_${J}.des)
-    endforeach(J)
-  endforeach(I)
+#   foreach(I RANGE ${Imax})
+#     foreach(J RANGE ${Jmax})
+# 	  list(APPEND createdFiles ${CMAKE_CURRENT_BINARY_DIR}/test_cbwaves_${I}_${J}.ini
+# 	                           ${CMAKE_CURRENT_BINARY_DIR}/test_cbwaves_${I}_${J}.des)
+#     endforeach(J)
+#   endforeach(I)
 
-  add_custom_command(COMMAND ${PERL_EXECUTABLE} ARGS ${script} ${Imax} ${Jmax}
-                     WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
-					 OUTPUT ${createdFiles}
-					 DEPENDS ${script}
-					 MAIN_DEPENDENCY ${script}
-					 COMMENT "Running script examples/cbwgen.pl")
+#   add_custom_command(COMMAND ${PERL_EXECUTABLE} ARGS ${script} ${Imax} ${Jmax}
+#                      WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
+# 					 OUTPUT ${createdFiles}
+# 					 DEPENDS ${script}
+# 					 MAIN_DEPENDENCY ${script}
+# 					 COMMENT "Running script examples/cbwgen.pl")
 
-  add_custom_target(ini ALL
-                    DEPENDS ${createdFiles}
-					SOURCES ${script}
-					COMMENT "Generating ini files")
-endif(${PERL_FOUND})
+#   add_custom_target(ini ALL
+#                     DEPENDS ${createdFiles}
+# 					SOURCES ${script}
+# 					COMMENT "Generating ini files")
+# endif(${PERL_FOUND})

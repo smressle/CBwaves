@@ -71,7 +71,7 @@ my ($ftfilehandle,  $ftfilename) = File::Temp::tempfile("cbwavesXXXXX", ".ft");
 
 # - Hterms and corrections
 my $hterms= "'Q','P05Q','PQ','P15Q','P15Qtail','PQSO','P15QSO','P2Q','PQSS'";
-my $corrs="'PN','2PN','SO','SS','RR','PNSO','3PN','1RR','2PNSO','RRSO','RRSS'";
+my $corrs="'PN','2PN','SO','SS','RR','PNSO','3PN','1RR','2PNSO','RRSO','RRSS','4PN'";
 
 # - Output variables
 my $outvars = "t,orbits,orbfreq,rx,ry,rz,h_+,E_N,E_PNtot,E_tot,E_rad,hp22,hx22,x1,y1,z1,x2,y2,z2,hp22,hp21,hp20,hp2m1,hp2m2,hx22,hx21,hx20,hx2m1,hx2m2,h_x,h,mr,v2";
@@ -203,8 +203,8 @@ my $alpha;     # aux variable angle for the spin angle
 # Comment out the the loops if you want to generate only
 # a single ini file.
 
-for ($i=1; $i <= $ARGV[0]; $i++) {
-  for ($j=1; $j <= $ARGV[1]; $j++) {
+#for ($i=1; $i <= $ARGV[0]; $i++) {
+#  for ($j=1; $j <= $ARGV[1]; $j++) {
 
         $m1  = $i * $msun;
         $m2  = $i * $msun;
@@ -223,7 +223,7 @@ for ($i=1; $i <= $ARGV[0]; $i++) {
         $dt = 1 / 4096;
         WriteInifile;
     
-        move("CBwaves.ini","${uniqid}.ini");
+#        move("CBwaves.ini","${uniqid}.ini");
         if ("$generatesubfileonly" eq "yes") {
            open(desFILE,"> ${uniqid}.des");
            print desFILE <<EOF;
@@ -246,4 +246,4 @@ EOF
        }
     
   }
-}
+#}

@@ -78,7 +78,10 @@ my $corrs="'PN','2PN','SO','SS','RR','PNSO','3PN','1RR','2PNSO','RRSO','RRSS','4
 
 # - Output variables
 #my $outvars = "t,orbits,orbfreq,rx,ry,rz,h_+,E_N,E_PNtot,E_tot,E_rad,hp22,hx22,x1,y1,z1,x2,y2,z2,hp22,hp21,hp20,hp2m1,hp2m2,hx22,hx21,hx20,hx2m1,hx2m2,h_x,h,mr,v2";
-my $outvars = "t,x1,y1,z1,x2,y2,z2,E,E_tot,h";
+my $outvars = "t,x1,y1,z1,x2,y2,z2,E,E_tot,h,r,r_tot";
+
+# - Do we want initial eccentricity approximation 
+my $eccapprox = "no";
 
 # - Do we want checkpointing 
 my $checkpoint = "no";
@@ -110,7 +113,7 @@ my $i;
 my $j;
 
 # print variables
-my $printstep = 1000;
+my $printstep = 10;
 my $printorbit = 0;
 my $adaptive = "no";
 my $adaptive_step = 1000;
@@ -180,6 +183,7 @@ s2y       = $s2y                        # spin y components of m2
 s2z       = $s2z                        # spin z components of m2
 hterms    = $hterms                     # PN order for the waveform
 corrs     = $corrs                      # PN order for the motion
+eccapprox = $eccapprox                  # approximate or not the initial eccentricity
 checkpoint= $checkpoint                 # wheter to make or not checkpoint files
 description=$description                # human readable description of the run
 printstep = $printstep                  # print variables after every X step
@@ -222,9 +226,9 @@ my $alpha;     # aux variable angle for the spin angle
 
         $m1  = 10 * $msun;
         $m2  = 2 * $msun;
-        $s1z = 0;
+        $s1z = 0.5;
         $s1x = 0;
-        $epsilon = 0.5;
+        $epsilon = 0.9;
         
         $uniqid="${filenameprefix}";
         $outfile="${uniqid}.dat";
