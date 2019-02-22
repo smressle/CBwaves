@@ -1165,20 +1165,76 @@ static FUNCDEF(E_2PNSO) {			// Boh� etal CQG30(13)075017, Eq. (3.9d)
     }
 }
 
+static FUNCDEF(E_4PN) {			// Mora, Will PRD69(04)104021, Eq. (2.11d)
+    if(ode.corrections & C_3PN) {
+        REAL eta = ode.eta;
+        REAL eta2 = eta*eta;
+        REAL eta3 = eta*eta*eta;
+        REAL mu = ode.mu;
+        REAL rx = eval_rx(t, f, ode, obs);
+        REAL ry = eval_ry(t, f, ode, obs);
+        REAL rz = eval_rz(t, f, ode, obs);
+        REAL rsq = rx*rx + ry*ry + rz*rz;
+        REAL r = sqrt(rsq);
+        REAL vx = eval_vx(t, f, ode, obs);
+        REAL vy = eval_vy(t, f, ode, obs);
+        REAL vz = eval_vz(t, f, ode, obs);
+        REAL v2 = vx*vx + vy*vy + vz*vz;
+        REAL v = sqrt(v2);
+        REAL v4 = v2*v2;
+        REAL rdot = (rx*vx + ry*vy + rz*vz)/r;
+        REAL rdot2 = rdot*rdot;
+        REAL m_r = ode.m/r;
+        REAL m_r2 = m_r*m_r;
+
+        REAL E4PN0 = (63./256. - 1089./256.*eta + 7065./256.*eta2 - 10143./128.*eta3 + 21735./256.*std::pow(eta, 4))*pow(v, 10);
+
+        REAL E4PN1 = m_r*((-35./128.*eta + 245./128.*eta2 - 245./64.*eta3 + 245./128.*pow(eta, 4))*pow(rdot, 8)
+               + (25./32.*eta - 125./16.*eta2 + 185./8.*eta3 - 595./32.*pow(eta,4))*pow(rdot, 6)*v2
+               + (27./64.*eta + 243./32.*eta2 - 1683./32.*eta3 + 4851./64.*pow(eta, 4))*pow(rdot*v, 4)
+               + (-147./32.*eta + 369./32.*eta2 + 423./8.*eta3 - 4655./32.*pow(eta, 4))*rdot2*pow(v, 6)
+               + (525./128. - 4011./128.*eta + 9507./128.*eta2 - 357./64.*eta3 + 15827./128.*pow(eta, 4))*pow(v, 8));
+
+        REAL E4PN2 = m_r2*((-4771./640.*eta - 461./8.*eta2 - 17./2.*eta3 + 15./2.*pow(eta, 4))*pow(rdot, 6)
+               + (5347./384.*eta + 19465./96.*eta2 - 489./8.*eta3 - 135./2.*pow(eta, 4))*pow(rdot, 4)*v2
+               + (15./16. - 5893./128.*eta - 12995./64.*eta2 + 18511./64.*eta3 + 2845./16.*pow(eta, 4))*pow(rdot*v2, 2)
+               + (575./32. - 4489./128.*eta + 5129./64.*eta2 - 8289./64.*eta3 + 975./16.*pow(eta, 4))*pow(v, 6));
+
+        REAL E4PN3 = pow(m_r, 3)*(-(2599207./6720. + 6465./1024.*PI*PI*eta - (103205./224. - 615./128.*PI*PI)*eta2 
+                   + 69./32.*eta3 + 87./4.*pow(eta, 4))*pow(rdot, 4) 
+                   + (21./4. + (1086923./1680. + 333./512.*PI*PI)*eta + (206013./560. +123./64.*PI*PI)*eta2
+                   - 2437./16.*eta3 - 141./2.*pow(eta, 4))*(rdot2*v2)
+                   + (273./16. - (22649399./10800. - 1071./1024.*PI*PI)*eta + (521063./10080. - 205./128.*PI*PI)*eta2
+                   + 2373./32.*eta3 - 45./4.*pow(eta, 4))*pow(v, 4));
+
+        REAL E4PN4 = pow(m_r, 4)*((9./4. - (1622437./12600. - 2645./96.*PI*PI)*eta - (289351./2520. + 1367./32.*PI*PI)*eta2
+                   + 213./8.*eta3 + 15./2.*pow(eta, 4))*rdot2
+                   + (15./16. + (1859363./16800. - 149./32.*PI*PI)*eta + (22963./5040. + 311./32.*PI*PI)*eta2 - 29./8.*eta3 + 1./2.*pow(eta, 4.))*v2);
+
+        REAL E4PN5 = pow(m_r, 5)*(-3./8. - (1697177./25200. + 105./32.*PI*PI)*eta - (55111./720. - 11.*PI*PI)*eta2);
+
+        REAL e4PN = mu*(E4PN0 + E4PN1 + E4PN2 + E4PN3 + E4PN4 + E4PN5);
+        return e4PN;
+    
+    } else {
+        return 0;
+    }
+}
+
 /** Energy of the compact binary system (non-conserved). */
 static FUNCDEF(E) {
     REAL E = eval_E_N(t, f, ode, obs);
     if(ode.corrections & C_PN) {
-	E += eval_E_PN(t, f, ode, obs);
+	    E += eval_E_PN(t, f, ode, obs);
     }
     if(ode.corrections & C_SO) {
-	E += eval_E_SO(t, f, ode, obs);
+	    E += eval_E_SO(t, f, ode, obs);
     }
     if(ode.corrections & C_2PN) {
-	E += eval_E_2PN(t, f, ode, obs);
+	    E += eval_E_2PN(t, f, ode, obs);
     }
     if(ode.corrections & C_SS) {
-	E += eval_E_SS(t, f, ode, obs);
+	    E += eval_E_SS(t, f, ode, obs);
     }
     if(ode.corrections & C_3PN) {
         E += eval_E_3PN(t, f, ode, obs);
@@ -1188,6 +1244,9 @@ static FUNCDEF(E) {
     }
     if(ode.corrections & C_2PNSO) {
         E += eval_E_2PNSO(t, f, ode, obs);
+    }
+    if(ode.corrections & C_4PN) {
+        E += eval_E_4PN(t, f, ode, obs);
     }
     return E;
 }
@@ -1701,6 +1760,7 @@ static map<string, function_t> create_function_map()
     m["E_SO"] = eval_E_SO; // energy contribution from spin-orbit coupling
     m["E_SS"] = eval_E_SS; // energy contribution from spin-spin coupling
     m["E_3PN"] = eval_E_3PN; // 3rd order post-Newtonian correction
+    m["E_4PN"] = eval_E_4PN; // 3rd order post-Newtonian correction
     m["E_PNSO"] = eval_E_PNSO; // 2.5rd order post-Newtonian SO correction
     m["E_rad"] = eval_E_rad; // radiated energy loss
     m["E_PNrad"] = eval_E_PNrad; // radiated energy Newtonian contribution
@@ -2421,7 +2481,7 @@ static void run(CBwaveODE& ode, tvalarray<REAL>& f, REAL dt,
 //	cerr << "Integrating..." << flush;
 //    }
     while(is_valid(t, f, ode, obs) && t + aux[aux_dt]/2 < tmax && f[I_orbits] < orbitsmax) {
-
+        // std::cout << "I_orbits: " <<I_orbits << ", f[I_orbits]: " << f[I_orbits] << std::endl;
 // By default there is no output
         doprintoutput = 0;
 
@@ -2902,8 +2962,7 @@ int main(int argc, const char* argv[])
         erorbit        = 0;
         ecc_r          = 10;
 
-        run(ode, f, aux[aux_dt], t, tmax, 1.2, obs, datafname, *devnull, auxoutcolumns,
-        ftfname, *none, *devnull);
+        run(ode, f, aux[aux_dt], t, tmax, 1.2, obs, datafname, *devnull, auxoutcolumns, ftfname, *none, *devnull);
 
         cbwLog(cbwDEBUG,"Boost = %g, scaler  = %g, ecc = %g", boostvalue,boostscale,ecc_r);
 

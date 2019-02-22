@@ -1,5 +1,8 @@
 #!/usr/bin/perl -w
 use strict;
+use warnings;
+use feature qw(switch);
+# use Switch;
 
 #
 # This example script generates ini files 
@@ -27,7 +30,7 @@ my $cbwbinary="/Users/b/Documents/CppProjects/cbwaves-verziok/cbwaves-1.2.0-2/bu
 
 # - Output file name prefix
 
-my $filenameprefix="test_cbwaves";
+my $filenameprefix="test";
 
 # - Mass ratio: 10:1.4
 #       m1 = 10*G/c^2*2e30 = 14850 meters
@@ -74,7 +77,7 @@ my $ftfile="cbwaves.ft";
 
 # - Hterms and corrections
 my $hterms= "'Q','P05Q','PQ','P15Q','P15Qtail','PQSO','P15QSO','P2Q','PQSS'";
-my $corrs="'PN','2PN','SO','SS','RR','PNSO','3PN','1RR','2PNSO','RRSO','RRSS','4PN'";
+my $corrs="'PN','2PN','RR','3PN','1RR','2PNSO','4PN'";
 
 # - Output variables
 #my $outvars = "t,orbits,orbfreq,rx,ry,rz,h_+,E_N,E_PNtot,E_tot,E_rad,hp22,hx22,x1,y1,z1,x2,y2,z2,hp22,hp21,hp20,hp2m1,hp2m2,hx22,hx21,hx20,hx2m1,hx2m2,h_x,h,mr,v2";
@@ -102,7 +105,7 @@ my $T = 10;
 my $f = 1/$T;
 
 # - logging level
-my $loglevel = 0;
+my $loglevel = 6;
 
 # - simulations stops when r<rmin or r>rmax
 my $rmin = 6*($m1 + $m2);
@@ -224,28 +227,51 @@ my $alpha;     # aux variable angle for the spin angle
 #for ($i=1; $i <5; $i++) {
 # $i=10;
 
-        $m1  = 10 * $msun;
-        $m2  = 2 * $msun;
-        $s1z = 0.5;
-        $s1x = 0;
-        $epsilon = 0.9;
+my @orders = qw(PN 2PN 3PN 4PN );
+my $PNorder = "";
+foreach $PNorder (@orders) {
+
+        $outvars = "t,E_tot,r,E_PN,E_2PN,E_3PN,E_4PN,E_PNrad,E_2PNrad,E_PNtot,E_2PNtot,x2,y2";
+
+        # print "${PNorder} \n";
+
+        given($PNorder){
+
+                when ("PN")       { $corrs="'PN','RR','1RR'"; print "PN test is runing.\n"; }
+                when ("2PN")      { $corrs="'PN','2PN','RR','1RR','2PNSO'"; print "2PN test is runing.\n"; }
+                when ("3PN")      { $corrs="'PN','2PN','RR','3PN','1RR','2PNSO'"; print "3PN test is runing.\n"; }
+                when ("4PN")      { $corrs="'PN','2PN','RR','3PN','1RR','2PNSO','4PN'"; print "4PN test is runing.\n"; }
+                default	          { $corrs="'PN','2PN','RR','3PN','1RR','2PNSO','4PN'"; }
+
+        }
+
+        $m1  = 10. * $msun;
+        $m2  = 5. * $msun;
+        $s1x = 0.;
+        $s1y = 0.;
+        $s1z = 0.;
+        $s2x = 0.;
+        $s2y = 0.;
+        $s2z = 0.;
+        $epsilon = 0.;
         
-        $uniqid="${filenameprefix}";
+        $uniqid="${filenameprefix}_${PNorder}";
         $outfile="${uniqid}.dat";
         # $ftfile="${filenameprefix}_${i}_${i}_fft"; 
 
         $rmin = 2*$M;
         # $flow = 40;
         # $r  = (($SI_c/2./$PI/$flow)**2.*($m1+$m2) )**(1./3.);
-        $r = 100*($M*(1 + $z));
+        $r = 50*($M*(1 + $z));
         $ri = $r;
         $T  = 2*$PI*sqrt($r**3./($m1+$m2))/$SI_c; # To calculate orbital steps
         $f  = 1 / $T;
         $dt = 1 / 4096;
         $rmax = 100*$r;
+
         WriteInifile;
     
-#        Run "cp CBwaves.ini ${uniqid}.ini";
+        Run "cp CBwaves.ini ${uniqid}.ini";
         if ("$generatesubfileonly" eq "yes") {
            open(desFILE,"> ${uniqid}.des");
            print desFILE <<EOF;
@@ -263,8 +289,15 @@ Queue 1
 EOF
           
         } else {
-
-           Run "/Users/b/Documents/CppProjects/cbwaves-verziok/cbwaves-1.2.0-2/build/CBwaves CBwaves.ini";
+                Run "/Users/b/Documents/CppProjects/cbwaves-verziok/cbwaves-1.2.0-2/build/CBwaves ${uniqid}.ini";
        }
     
-#}
+}
+
+print "\n Subroutines \n";
+Run "gnuplot plot.gpl";
+
+Run "rm -rf data/";
+Run "mkdir data";
+Run "mv *.dat data/";
+Run "mv *.png data/";
