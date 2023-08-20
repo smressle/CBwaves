@@ -5,7 +5,7 @@ CXX = g++
 
 # Compiler and linker options.
 CXXFLAGS = -O3 -Wall
-LINKFLAGS = -static
+LINKFLAGS = -dynamic ## -static
 
 # Compiler flags for dependency generation.
 # Comment it out if your compiler cannot generate dependencies.
