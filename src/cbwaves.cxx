@@ -1,4 +1,4 @@
-﻿#include <cmath>
+﻿
 #include <limits>
 #include <fstream>
 #include <sstream>
@@ -14,6 +14,15 @@
 #include <complex>
 #include <stdio.h>
 #include <stdarg.h>
+//#include <iostream>
+//extern "C" {
+//#include <hdf5.h>
+//}
+////#include <hdf5.h>
+//
+//
+//#include "H5Cpp.h"
+//using namespace H5;
 
 #define H_COUNT       9
 #define H_Q          (1<<0)
@@ -2413,6 +2422,27 @@ void CBwaveODE::eval(const REAL* f, int offset, REAL t, REAL* df)
     }
     df[I_orbits] = v/(2*M_PI*r);
 }
+/* HDF5 print function */
+//inline void printHDF5(ostream& out, REAL t, const tvalarray<REAL>& f,
+//		  const CBwaveODE& ode, const ObserverParameters& obs,
+//		  const map<string, function_t>& funcmap,
+//		  const tvector<string>& outcolumns)
+//{
+//    out.precision(16);
+//    for(unsigned i = 0; i < outcolumns.size(); ++i) {
+//        /* Read name from outcolumns specified in .ini file*/
+//	const string& name = outcolumns[i]; // this is a string
+//        /* We declare an iterator to run through funcmap, which defines all the output functions */
+//	map<string, function_t>::const_iterator it;
+//        /* Check we are not in the end of the functor*/ 
+//	if((it = funcmap.find(name)) != funcmap.end()) {
+//	    out << (*it->second)(t, f, ode, obs);
+//	} else {
+//	    out << "unknown";
+//	}
+//    }
+//    out << endl;
+//}
 
 inline void print(ostream& out, REAL t, const tvalarray<REAL>& f,
 		  const CBwaveODE& ode, const ObserverParameters& obs,
@@ -3027,6 +3057,29 @@ int main(int argc, const char* argv[])
     ostream* out1 = make_ostream(datafname);
     ostream* out2 = make_ostream(ftfname);
     ostream* out3 = NULL;
+   
+    // Create HDF5 file. 
+    //const char saveFilePath[] = "./test.h5";
+    //const hsize_t ndims = 1;
+    ////const hsize_t ncols = 3; 
+    //hid_t file = H5Fcreate(saveFilePath, H5F_ACC_TRUNC, H5P_DEFAULT, H5P_DEFAULT);
+    //hsize_t dims[ndims] = {0};
+    //hsize_t max_dims[ndims] = {H5S_UNLIMITED};
+    ///* property of data set */
+    //hid_t file_space = H5Screate_simple(ndims, dims, max_dims);
+    //hid_t plist = H5Pcreate(H5P_DATASET_CREATE);
+    //H5Pset_layout(plist, H5D_CHUNKED);
+    //hsize_t chunk_dims[ndims] = {2};
+    //H5Pset_chunk(plist, ndims, chunk_dims);
+    //for(unsigned i = 0; i < outcolumns.size(); ++i) {
+    //    /* Read name from outcolumns specified in .ini file*/
+    //    const string& name = outcolumns[i]; // this is a string
+    //    /* we write here all output variables */
+    //    hid_t dset = H5Dcreate(file, name.c_str(), H5T_NATIVE_FLOAT, file_space, H5P_DEFAULT, plist, H5P_DEFAULT);
+    //}
+    //H5Pclose(plist);
+    //H5Sclose(file_space);
+    //
 
     // Creat checkpoint file only if required
     if (chkpoint == "yes" ) {
