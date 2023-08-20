@@ -1,5 +1,6 @@
 cbwaves.o cbwaves.d: cbwaves.cxx ../include/tvector.h ../include/RK4.h \
  ../include/tvalarray.h ../include/Spline3.h ../include/fft.h \
+<<<<<<< HEAD
  ../include/ConfigFile.h \
  /global/home/groups/consultsw/sl-7.x86_64/modules/boost/1.72.0//include/boost/algorithm/string.hpp \
  /global/home/groups/consultsw/sl-7.x86_64/modules/boost/1.72.0//include/boost/algorithm/string/std_containers_traits.hpp \
@@ -398,3 +399,6 @@ cbwaves.o cbwaves.d: cbwaves.cxx ../include/tvector.h ../include/RK4.h \
  /global/home/groups/consultsw/sl-7.x86_64/modules/boost/1.72.0//include/boost/algorithm/string/detail/formatter.hpp \
  /global/home/groups/consultsw/sl-7.x86_64/modules/boost/1.72.0//include/boost/algorithm/string/erase.hpp \
  ../include/hmodes.h
+=======
+ ../include/ConfigFile.h ../include/hmodes.h
+>>>>>>> 69f516678ebf91b4abcb6daf5c0a4aa0114e7749
