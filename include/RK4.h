@@ -105,7 +105,7 @@ template <class T>
 bool ODE<T>::set(const std::string& name, T value, tvalarray<T>& vars)
 {
     for(int i = 0; i < getNumComponents(); ++i) {
-	if(getComponentName(i) == name) {
+	if(getComponentName(i+1) == name) {
 	    vars[i] = value;
 	    return true;
 	}
