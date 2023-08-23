@@ -91,7 +91,7 @@ f = 1 / T
 
 #! - Time step
 #! - Should be adjusted according to mass.
-dt = 100000 / 1e10 * 1e6
+dt = 100000 / 1e10 * (M1+M2)
 
 #! - Maximum evolution time
 tmax = 3.0e20 / 1e10
@@ -112,10 +112,10 @@ psi = 0.0
 #! - Spin definition
 s1 = 0.9375 #0.381
 s2 = 0
-s1x = 0
+s1x = s1
 s1y = 0
-s1z = s1 #s1*math.cos(0)
-s2x = 0
+s1z = 0.0 #s1*math.cos(0)
+s2x = s2
 s2y = 0
 s2z = 0
 
@@ -129,7 +129,7 @@ hterms = "'Q','P05Q','PQ','P15Q','P15Qtail','PQSO','P15QSO','P2Q','PQSS'"
 
 #! - Output variables
 #outvars = "t,x1,y1,z1,x2,y2,z2,h,s1x,s1y,s1z,E_tot,E_rad,h_+,h_x,orbfreq,r,ecc_r,v2,mr,orbits"
-outvars_dic = ['t','x1','y1','z1','x2','y2','z2','s1x','s1y','s1z','orbfreq','r','ecc_r','v2','mr','orbits']
+outvars_dic = ['t','x1','y1','z1','x2','y2','z2','s1x','s1y','s1z','s2x','s2y','s2z','orbfreq','r','ecc_r','v2','mr','orbits']
 
 #! - Create outvar string
 outvars = ''
@@ -282,6 +282,50 @@ else:
 	logging.info("Data file already exist. Starting next process!")
 
 logging.info("Starts to create example plots!")
+
+
+data = loadtxt('circularorbit_r20.dat')
+
+t = data[:,0] / (M/c)
+x1,y1,z1 = data[:,1], data[:,2],data[:,3]
+x1,y1,z1 = x1/M, y1/M,z1/M
+x2,y2,z2 = data[:,4], data[:,5],data[:,6]  
+x2,y2,z2 = x2/M, y2/M, z2/M
+s1x,s1y,s1z = data[:,7], data[:,8],data[:,9]  ##dimensionless
+s2x,s2y,s2z = data[:,10], data[:,11],data[:,12] ##dimensionless
+
+v1x,v1y,v1z = np.gradient(x1,t),np.gradient(y1,t),np.gradient(z1,t)
+v2x,v2y,v2z = np.gradient(x2,t),np.gradient(y2,t),np.gradient(z2,t)
+
+acc1x,acc1y,acc1z = np.gradient(v1x,t),np.gradient(v1y,t),np.gradient(v1z,t)
+acc2x,acc2y,acc2z = np.gradient(v2x,t),np.gradient(v2y,t),np.gradient(v2z,t)
+
+
+new_data = [t[1:], 
+		     x1[1:],y1[1:],z1[1:], 
+		     x2[1:],y2[1:],z2[1:], 
+		     s1x[1:],s1y[1:],s1z[1:], 
+		     s2x[1:],s2y[1:],s2z[1:], 
+		     v1x[1:],v1y[1:],v1z[1:], 
+		     v2x[1:],v2y[1:],v2z[1:], 
+		     acc1x[1:],acc1y[1:],acc1z[1:], 
+		     acc2x[1:],acc2y[1:],acc2z[1:]]
+
+new_data = np.array(new_data)
+nt = t[1:].shape[0]
+
+header = [np.str(nt)]
+
+fname = "orbits_r20.dat"
+fout = open(fname,"w")
+fout.write(" ".join(header) + "\n")
+#fout.flush()
+fout.close()
+fout = open(fname,"ab")
+new_data = new_data.transpose(1,0)
+new_data.tofile(fout)
+fout.close()
+
 
 #!
 #! Select units for the table
