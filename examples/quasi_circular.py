@@ -109,12 +109,14 @@ theta = 0.0
 varphi = 0.0
 psi = 0.0
 
+orbit_tilt_angle = np.pi/4.0 ##np.pi/2.0 ##tilt angle of orbit from spin direction
+
 #! - Spin definition
 s1 = 0.9375; ##0.9375 #0.381
 s2 = 0
-s1x = s1
+s1x = s1 * np.sin(orbit_tilt_angle)
 s1y = 0
-s1z = 0.0 #s1*math.cos(0)
+s1z = s1 * np.cos(orbit_tilt_angle)
 s2x = s2
 s2y = 0
 s2z = 0
@@ -289,13 +291,43 @@ data = loadtxt('circularorbit_r20.dat')
 ##rotate about y by 90 degrees
 ## new x is old -z, new z is old x, y is same 
 
+new_z_hat = np.array([s1x,s1y,s1z])/s1
+
+th_s = np.arccos(new_z_hat[2])
+ph_s = np.arctan2(s1y,s1x)
+new_x_hat = np.array([np.cos(th_s)*np.cos(ph_s),np.cos(th_s)*np.sin(ph_s),-np.sin(th_s)])
+new_y_hat = np.array([-np.sin(ph_s),np.cos(ph_s),0])    
+
+
 t = data[:,0] / (M/c)
-z1,y1,x1 = data[:,1], data[:,2],-data[:,3]
+# z1,y1,x1 = data[:,1], data[:,2],-data[:,3]
+# z1,y1,x1 = z1/M, y1/M,x1/M
+
+z1 = new_z_hat[0]*data[:,1] + new_z_hat[1]*data[:,2] + new_z_hat[2]*data[:,3]
+x1 = new_x_hat[0]*data[:,1] + new_x_hat[1]*data[:,2] + new_x_hat[2]*data[:,3]
+y1 = new_y_hat[0]*data[:,1] + new_y_hat[1]*data[:,2] + new_y_hat[2]*data[:,3]
+
 z1,y1,x1 = z1/M, y1/M,x1/M
-z2,y2,x2 = data[:,4], data[:,5],-data[:,6]  
+
+# z2,y2,x2 = data[:,4], data[:,5],-data[:,6] 
+
+
+z2 = new_z_hat[0]*data[:,4] + new_z_hat[1]*data[:,5] + new_z_hat[2]*data[:,6]
+x2 = new_x_hat[0]*data[:,4] + new_x_hat[1]*data[:,5] + new_x_hat[2]*data[:,6]
+y2 = new_y_hat[0]*data[:,4] + new_y_hat[1]*data[:,5] + new_y_hat[2]*data[:,6]
+
 z2,y2,x2 = z2/M, y2/M, x2/M
-s1z,s1y,s1x = data[:,7], data[:,8],-data[:,9]  ##dimensionless
-s2z,s2y,s2x = data[:,10], data[:,11],-data[:,12] ##dimensionless
+
+# s1z,s1y,s1x = data[:,7], data[:,8],-data[:,9]  ##dimensionless
+# s2z,s2y,s2x = data[:,10], data[:,11],-data[:,12] ##dimensionless
+
+s1z = new_z_hat[0]*data[:,7] + new_z_hat[1]*data[:,8] + new_z_hat[2]*data[:,9]
+s1x = new_x_hat[0]*data[:,7] + new_x_hat[1]*data[:,8] + new_x_hat[2]*data[:,9]
+s1y = new_y_hat[0]*data[:,7] + new_y_hat[1]*data[:,8] + new_y_hat[2]*data[:,9]
+
+s2z = new_z_hat[0]*data[:,10] + new_z_hat[1]*data[:,11] + new_z_hat[2]*data[:,12]
+s2x = new_x_hat[0]*data[:,10] + new_x_hat[1]*data[:,11] + new_x_hat[2]*data[:,12]
+s2y = new_y_hat[0]*data[:,10] + new_y_hat[1]*data[:,11] + new_y_hat[2]*data[:,12]
 
 v1x,v1y,v1z = np.gradient(x1,t),np.gradient(y1,t),np.gradient(z1,t)
 v2x,v2y,v2z = np.gradient(x2,t),np.gradient(y2,t),np.gradient(z2,t)
@@ -321,7 +353,7 @@ nt = t[1:].shape[0]
 
 header = [np.str(nt),np.str(M2/M1)]
 
-fname = "orbits_r20a19.dat"
+fname = "orbits_r20a19_45_degrees.dat"
 fout = open(fname,"w")
 fout.write(" ".join(header) + "\n")
 #fout.flush()
