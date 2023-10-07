@@ -77,7 +77,7 @@ M = m1 + m2
 
 #! - Initial separation:
 z = 0.3
-r0 = 20 #16.41369744591233
+r0 = 80 #16.41369744591233
 r = r0 * (M) #* (1 + z))
 T = 2. * pi * r/(c * math.sqrt(M/r))
 
@@ -109,11 +109,11 @@ theta = 0.0
 varphi = 0.0
 psi = 0.0
 
-orbit_tilt_angle = np.pi/4.0 ##np.pi/2.0 ##tilt angle of orbit from spin direction
+orbit_tilt_angle = np.pi/2.0 ##np.pi/4.0 ##np.pi/2.0 ##tilt angle of orbit from spin direction
 
 #! - Spin definition
 s1 = 0.9375; ##0.9375 #0.381
-s2 = 0
+s2 = 0.9375
 s1x = s1 * np.sin(orbit_tilt_angle)
 s1y = 0
 s1z = s1 * np.cos(orbit_tilt_angle)
@@ -201,7 +201,7 @@ gdelta6 = 51./28. + 71./14.*eta
 inifile = filenameprefix + '.ini'
 outfile = filenameprefix + '.dat'
 
-logging.info("Simulation is runing.")
+logging.info("Simulation is running.")
 
 #!
 #! - Creating the .ini file
@@ -283,7 +283,7 @@ if not os.path.isfile(outfile):
 else:
 	logging.info("Data file already exist. Starting next process!")
 
-logging.info("Starts to create example plots!")
+logging.info("Starting to create example plots!")
 
 
 data = loadtxt('circularorbit_r20.dat')
@@ -353,7 +353,7 @@ nt = t[1:].shape[0]
 
 header = [np.str(nt),np.str(M2/M1)]
 
-fname = "orbits_r20a19_45_degrees.dat"
+fname = "orbits_r80a19a29.dat"
 fout = open(fname,"w")
 fout.write(" ".join(header) + "\n")
 #fout.flush()
