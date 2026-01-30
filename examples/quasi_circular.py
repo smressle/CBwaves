@@ -27,8 +27,8 @@ from matplotlib.collections import LineCollection
 from matplotlib.ticker import FormatStrFormatter
 
 #* Addittional options for imported libraries
-mpl.use('Agg')
-mpl.rcParams['agg.path.chunksize'] = 100000
+# mpl.use('Agg')
+# mpl.rcParams['agg.path.chunksize'] = 100000
 plt.rc('axes', labelsize=18)
 logging.basicConfig(format='%(asctime)s %(message)s', datefmt='%m/%d/%Y %I:%M:%S %p', level=logging.INFO)
 
@@ -69,15 +69,18 @@ elif sys.platform.startswith('win32'):
 filenameprefix = "circularorbit_r20"
 
 #! - Mass ratio
+# M1 = 1e6 ##1#*math.pow(10, 10)
+# M2 = 1e5 ##0.1#*math.pow(10, 10)
+
 M1 = 1e6 ##1#*math.pow(10, 10)
-M2 = 1e5 ##0.1#*math.pow(10, 10)
+M2 = 1e5/2.0 ##0.1#*math.pow(10, 10)
 m1 = M1*msun
 m2 = M2*msun
 M = m1 + m2
 
 #! - Initial separation:
 z = 0.3
-r0 = 80 #16.41369744591233
+r0 = 20 #30 #25 #16.41369744591233
 r = r0 * (M) #* (1 + z))
 T = 2. * pi * r/(c * math.sqrt(M/r))
 
@@ -96,8 +99,11 @@ dt = 100000 / 1e10 * (M1+M2)
 #! - Maximum evolution time
 tmax = 3.0e20 / 1e10
 
+tmax = 1e6*(M/c)
+##/ (M/c)
+
 #! - Maximum number of orbits
-orbitsmax = 1e6
+orbitsmax = 1e3
 
 #! - Eccentricity of the orbit
 epsilon = 0
@@ -109,17 +115,20 @@ theta = 0.0
 varphi = 0.0
 psi = 0.0
 
-orbit_tilt_angle = np.pi/2.0 ##np.pi/4.0 ##np.pi/2.0 ##tilt angle of orbit from spin direction
+##orbit_tilt_angle = np.pi/2.0 ##np.pi/4.0 ##np.pi/2.0 ##tilt angle of orbit from spin direction
+orbit_tilt_angle = np.pi/2.0
+
+secondary_spin_tilt = 0 ## np.pi/2 for what I had before
 
 #! - Spin definition
-s1 = 0.9375; ##0.9375 #0.381
-s2 = 0.9375
+s1 = 0.0000001 ##0.9375; ##0.9375 #0.381
+s2 = 0 ## 0.9375
 s1x = s1 * np.sin(orbit_tilt_angle)
 s1y = 0
 s1z = s1 * np.cos(orbit_tilt_angle)
-s2x = s2
+s2x = s2 * np.sin(secondary_spin_tilt)
 s2y = 0
-s2z = 0
+s2z = s2 * np.cos(secondary_spin_tilt)
 
 #! - Output filename definition
 outfile = "cbwaves.out"
@@ -286,7 +295,7 @@ else:
 logging.info("Starting to create example plots!")
 
 
-data = loadtxt('circularorbit_r20.dat')
+data = loadtxt(filenameprefix + ".dat")
 
 ##rotate about y by 90 degrees
 ## new x is old -z, new z is old x, y is same 
@@ -299,7 +308,16 @@ new_x_hat = np.array([np.cos(th_s)*np.cos(ph_s),np.cos(th_s)*np.sin(ph_s),-np.si
 new_y_hat = np.array([-np.sin(ph_s),np.cos(ph_s),0])    
 
 
-t = data[:,0] / (M/c)
+
+# M1 = 1e6 ##1#*math.pow(10, 10)
+# M2 = 1e6 ##0.1#*math.pow(10, 10)
+# m1 = M1*msun
+# m2 = M2*msun
+# M = m1 + m2
+
+M_norm = max(m1,m2)
+
+t = data[:,0] / (M_norm/c)
 # z1,y1,x1 = data[:,1], data[:,2],-data[:,3]
 # z1,y1,x1 = z1/M, y1/M,x1/M
 
@@ -307,7 +325,7 @@ z1 = new_z_hat[0]*data[:,1] + new_z_hat[1]*data[:,2] + new_z_hat[2]*data[:,3]
 x1 = new_x_hat[0]*data[:,1] + new_x_hat[1]*data[:,2] + new_x_hat[2]*data[:,3]
 y1 = new_y_hat[0]*data[:,1] + new_y_hat[1]*data[:,2] + new_y_hat[2]*data[:,3]
 
-z1,y1,x1 = z1/M, y1/M,x1/M
+z1,y1,x1 = z1/M_norm, y1/M_norm,x1/M_norm
 
 # z2,y2,x2 = data[:,4], data[:,5],-data[:,6] 
 
@@ -316,7 +334,7 @@ z2 = new_z_hat[0]*data[:,4] + new_z_hat[1]*data[:,5] + new_z_hat[2]*data[:,6]
 x2 = new_x_hat[0]*data[:,4] + new_x_hat[1]*data[:,5] + new_x_hat[2]*data[:,6]
 y2 = new_y_hat[0]*data[:,4] + new_y_hat[1]*data[:,5] + new_y_hat[2]*data[:,6]
 
-z2,y2,x2 = z2/M, y2/M, x2/M
+z2,y2,x2 = z2/M_norm, y2/M_norm, x2/M_norm
 
 # s1z,s1y,s1x = data[:,7], data[:,8],-data[:,9]  ##dimensionless
 # s2z,s2y,s2x = data[:,10], data[:,11],-data[:,12] ##dimensionless
@@ -353,7 +371,7 @@ nt = t[1:].shape[0]
 
 header = [np.str(nt),np.str(M2/M1)]
 
-fname = "orbits_r80a19a29.dat"
+fname = "orbits_r20_q_0005.dat"
 fout = open(fname,"w")
 fout.write(" ".join(header) + "\n")
 #fout.flush()
